@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- תגיות להתאמה כאפליקציה באייפון ובאנדרואיד -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="בר מצווה">
+    <title>אשרו הגעתכם - בר מצווה</title>
+    
+    <!-- טעינת Tailwind CSS לעיצוב רספונסיבי -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- טעינת פונטים מעוגלים ויפים בעברית מגוגל -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Varela+Round&display=swap" rel="stylesheet">
+    
+    <!-- אייקונים מ-Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-main: #d8c2a6;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --primary-color: #26489a;
+            --primary-hover: #1d3778;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Rubik', 'Varela Round', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            /* טקסטורת נייר עדינה בהשראת ההזמנה */
+            background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .theme-primary-text {
+            color: var(--primary-color);
+            transition: color 0.4s ease;
+        }
+
+        .theme-primary-bg {
+            background-color: var(--primary-color);
+            transition: background-color 0.4s ease, transform 0.15s ease;
+        }
+
+        .theme-primary-bg:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .theme-primary-border {
+            border-color: var(--primary-color);
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+        }
+
+        .pill-input {
+            border-radius: 1.25rem;
+            border: 1.5px solid rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .pill-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(38, 72, 154, 0.12);
+        }
+
+        /* אנימציות כניסה חלקות */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .animate-enter {
+            animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* התאמת פס גלילה */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.15);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between items-center p-4 sm:p-6 md:p-10">
+
+    <!-- הודעה צפה מותאמת אישית (במקום alert) -->
+    <div id="toast-container" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none flex flex-col gap-2 w-11/12 max-w-md"></div>
+
+    <!-- מיכל ראשי -->
+    <main class="w-full max-w-xl mx-auto my-auto animate-enter">
+        
+        <!-- כרטיס הזמנה ואישור הגעה -->
+        <div class="glass-card rounded-[2rem] p-6 sm:p-10 relative overflow-hidden">
+            
+            <!-- כותרת ראשית -->
+            <div class="text-center mb-8">
+                <span id="display-subtitle" class="inline-block px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-white/80 theme-primary-text shadow-sm mb-3">
+                    שמחים להזמינכם לחגוג איתנו
+                </span>
+                <h1 id="display-title" class="text-4xl sm:text-5xl font-extrabold theme-primary-text tracking-tight mb-2">
+                    אשרו הגעתכם
+                </h1>
+                <p id="display-description" class="text-sm sm:text-base text-slate-600 font-medium">
+                    נשמח לראותכם בשמחת בר המצווה שלנו!
+                </p>
+            </div>
+
+            <!-- פרטי האירוע במלבנים מעוגלים -->
+            <div class="grid grid-cols-3 gap-2.5 sm:gap-4 mb-8">
+                <!-- תאריך -->
+                <div class="bg-white/90 rounded-[1.5rem] p-3.5 text-center shadow-sm border border-white flex flex-col items-center justify-center">
+                    <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center mb-1.5 theme-primary-text">
+                        <i data-lucide="calendar" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-medium">תאריך</span>
+                    <span id="display-date" class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5">1.4.2027</span>
+                </div>
+
+                <!-- שעה -->
+                <div class="bg-white/90 rounded-[1.5rem] p-3.5 text-center shadow-sm border border-white flex flex-col items-center justify-center">
+                    <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center mb-1.5 theme-primary-text">
+                        <i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-medium">שעה</span>
+                    <span id="display-time" class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5">09:00</span>
+                </div>
+
+                <!-- מיקום -->
+                <div class="bg-white/90 rounded-[1.5rem] p-3.5 text-center shadow-sm border border-white flex flex-col items-center justify-center">
+                    <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center mb-1.5 theme-primary-text">
+                        <i data-lucide="map-pin" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-medium">מיקום</span>
+                    <span id="display-location" class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5 leading-tight">בית כנסת אוהל ארי</span>
+                </div>
+            </div>
+
+            <!-- כפתורי ניווט והוספה ליומן + לו"ז האירוע -->
+            <div class="mb-8 space-y-3">
+                <!-- פעולות מהירות למוזמנים -->
+                <div class="grid grid-cols-2 gap-2.5 sm:gap-3.5">
+                    <a id="waze-link" href="https://waze.com/ul?q=%D7%91%D7%99%D7%AA%20%D7%9B%D7%A0%D7%A1%D7%AA%20%D7%90%D7%95%D7%94%D7%9C%20%D7%90%D7%A8%D7%99" target="_blank" rel="noopener noreferrer"
+                        class="bg-white/90 hover:bg-white rounded-full py-2.5 px-4 text-xs sm:text-sm font-bold text-slate-700 shadow-sm border border-white flex items-center justify-center gap-2 transition-all active:scale-95">
+                        <i data-lucide="navigation" class="w-4 h-4 theme-primary-text"></i>
+                        <span>ניווט ב-Waze</span>
+                    </a>
+                    <button type="button" onclick="downloadCalendarEvent()"
+                        class="bg-white/90 hover:bg-white rounded-full py-2.5 px-4 text-xs sm:text-sm font-bold text-slate-700 shadow-sm border border-white flex items-center justify-center gap-2 transition-all active:scale-95">
+                        <i data-lucide="calendar-plus" class="w-4 h-4 theme-primary-text"></i>
+                        <span>הוספה ליומן</span>
+                    </button>
+                </div>
+
+                <!-- כרטיס לו"ז ופרטים נוספים -->
+                <div class="bg-white/80 rounded-[1.5rem] p-4 sm:p-5 border border-white space-y-3">
+                    <div class="flex items-center justify-between text-xs sm:text-sm border-b border-slate-200/60 pb-2.5">
+                        <div class="flex items-center gap-2 font-bold text-slate-700">
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span>
+                            <span id="display-event1-title">הנחת תפילין ועלייה לתורה</span>
+                        </div>
+                        <span id="display-event1-time" class="font-extrabold theme-primary-text bg-white px-2.5 py-0.5 rounded-full shadow-xs">09:00</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs sm:text-sm">
+                        <div class="flex items-center gap-2 font-bold text-slate-700">
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span>
+                            <span id="display-event2-title">קידוש וארוחת בוקר חגיגית</span>
+                        </div>
+                        <span id="display-event2-time" class="font-extrabold theme-primary-text bg-white px-2.5 py-0.5 rounded-full shadow-xs">10:30</span>
+                    </div>
+                    <p id="display-extra-note" class="text-[11px] sm:text-xs text-slate-500 pt-1 text-center font-medium">
+                        חניה בשפע בסמוך לבית הכנסת • נשמח לראותכם בזמן!
+                    </p>
+                </div>
+            </div>
+
+            <!-- טופס אישור הגעה -->
+            <form id="rsvp-form" class="space-y-4">
+                
+                <!-- שם פרטי ושם משפחה -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <input type="text" id="first-name" required placeholder="שם פרטי :" 
+                            class="pill-input w-full px-5 py-3.5 text-sm sm:text-base text-slate-800 placeholder-slate-400 font-medium">
+                    </div>
+                    <div>
+                        <input type="text" id="last-name" required placeholder="שם משפחה :" 
+                            class="pill-input w-full px-5 py-3.5 text-sm sm:text-base text-slate-800 placeholder-slate-400 font-medium">
+                    </div>
+                </div>
+
+                <!-- בחירת הגעה (כן / לא) -->
+                <div class="bg-white/80 rounded-[1.5rem] p-4 border border-white">
+                    <p id="display-attendance-question" class="text-sm font-semibold text-slate-700 mb-3">
+                        האם תגיעו לחגוג איתנו?
+                    </p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="attending" value="yes" checked class="peer sr-only" onchange="toggleGuestsCounter(true)">
+                            <div class="rounded-2xl py-3 px-4 text-center text-sm font-bold border-2 border-transparent bg-slate-100 text-slate-600 peer-checked:bg-white peer-checked:theme-primary-border peer-checked:theme-primary-text peer-checked:shadow-sm transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                <span>כן, כמובן!</span>
+                            </div>
+                        </label>
+                        
+                        <label class="cursor-pointer">
+                            <input type="radio" name="attending" value="no" class="peer sr-only" onchange="toggleGuestsCounter(false)">
+                            <div class="rounded-2xl py-3 px-4 text-center text-sm font-bold border-2 border-transparent bg-slate-100 text-slate-600 peer-checked:bg-white peer-checked:border-rose-500 peer-checked:text-rose-600 peer-checked:shadow-sm transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                <span>לא, סליחה...</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- כמות מוזמנים עם כפתורי + ו - -->
+                <div id="guests-counter-box" class="bg-white rounded-[1.5rem] px-5 py-3.5 border border-slate-200/70 flex items-center justify-between transition-all duration-300">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center theme-primary-text">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-sm sm:text-base font-semibold text-slate-700">מספר מגיעים :</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="updateGuestCount(-1)" aria-label="הפחת אורח"
+                            class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 text-slate-700 font-bold text-xl flex items-center justify-center transition-all select-none">
+                            −
+                        </button>
+                        <span id="guest-count-display" class="w-8 text-center text-lg font-extrabold theme-primary-text select-none">1</span>
+                        <button type="button" onclick="updateGuestCount(1)" aria-label="הוסף אורח"
+                            class="w-10 h-10 rounded-full theme-primary-bg text-white active:scale-90 font-bold text-xl flex items-center justify-center shadow-sm transition-all select-none">
+                            +
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ברכה קצרה (אופציונלי) -->
+                <div>
+                    <textarea id="guest-note" rows="2" placeholder="ברכה קצרה לחתן בר המצווה (לא חובה) :" 
+                        class="pill-input w-full px-5 py-3.5 text-sm sm:text-base text-slate-800 placeholder-slate-400 font-medium resize-none"></textarea>
+                </div>
+
+                <!-- כפתור שליחה -->
+                <div class="pt-2">
+                    <button type="submit" id="submit-btn" 
+                        class="w-full py-4 rounded-full theme-primary-bg text-white font-bold text-base sm:text-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <span>לשלוח אישור</span>
+                        <i data-lucide="send" class="w-5 h-5 rotate-180"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- מסך הצלחה לאחר שליחה -->
+            <div id="success-view" class="hidden text-center py-8 space-y-4 animate-enter">
+                <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+                    <i data-lucide="party-popper" class="w-10 h-10"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">תודה רבה!</h2>
+                <p id="success-message" class="text-slate-600 text-sm sm:text-base max-w-xs mx-auto leading-relaxed">
+                    אישור ההגעה שלך נקלט בהצלחה. מחכים לראותכם!
+                </p>
+                <div class="pt-4">
+                    <button type="button" onclick="resetForm()" 
+                        class="px-6 py-2.5 rounded-full bg-slate-200/80 hover:bg-slate-300/80 text-slate-700 text-sm font-semibold transition-all">
+                        שליחת אישור נוסף
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- כפתור אדמין מוסתר ועדין למטה -->
+    <footer class="w-full max-w-xl mx-auto mt-8 pb-2 flex justify-center">
+        <button type="button" onclick="openAdminModal()" aria-label="ניהול"
+            class="opacity-25 hover:opacity-80 transition-opacity duration-300 px-4 py-2 rounded-full text-xs font-medium text-slate-700 flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+            <span>ניהול</span>
+        </button>
+    </footer>
+
+    <!-- ================= מודאל הזנת קוד לאדמין (2812) ================= -->
+    <div id="pin-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-sm p-6 sm:p-8 shadow-2xl animate-enter text-center">
+            <div class="w-14 h-14 rounded-full bg-slate-100 theme-primary-text flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="shield-check" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-1">כניסת מנהל</h3>
+            <p class="text-xs text-slate-500 mb-6">הזן קוד גישה בן 4 ספרות</p>
+            
+            <form id="pin-form" class="space-y-4">
+                <input type="password" id="admin-pin-input" inputmode="numeric" maxlength="4" placeholder="••••" required
+                    class="w-full text-center text-3xl tracking-[0.6em] font-extrabold py-3.5 rounded-2xl bg-slate-100 border-2 border-transparent focus:border-slate-400 focus:bg-white outline-none transition-all">
+                
+                <div class="flex gap-2.5 pt-2">
+                    <button type="button" onclick="closePinModal()" 
+                        class="flex-1 py-3 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-all">
+                        ביטול
+                    </button>
+                    <button type="submit" 
+                        class="flex-1 py-3 rounded-full theme-primary-bg text-white font-bold text-sm shadow-md transition-all">
+                        כניסה
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= פאנל ניהול (אדמין פאנל) ================= -->
+    <div id="admin-panel" class="fixed inset-0 z-50 hidden bg-slate-100 overflow-y-auto">
+        <div class="max-w-3xl mx-auto p-4 sm:p-6 pb-20 space-y-6">
+            
+            <!-- כותרת עליונה של האדמין -->
+            <div class="bg-white rounded-[2rem] p-5 shadow-sm flex items-center justify-between sticky top-2 z-20 border border-slate-200/60">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full theme-primary-bg text-white flex items-center justify-center">
+                        <i data-lucide="sliders" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-800 leading-tight">ניהול בר מצווה</h2>
+                        <p class="text-xs text-slate-500">שינויים נשמרים אוטומטית לכולם</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminPanel()" 
+                    class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all">
+                    <span>חזרה לאתר</span>
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- כרטיס התראות לטלפון (מוצג במובייל / אפליקציה) -->
+            <div id="mobile-notification-card" class="bg-white rounded-[2rem] p-5 shadow-sm border border-slate-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="bell-ring" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-800">התראות על אישור חדש</h3>
+                        <p id="notif-status-text" class="text-xs text-slate-500 mt-0.5">
+                            קבל התראה לטלפון ברגע שמוזמן מאשר הגעה
+                        </p>
+                    </div>
+                </div>
+                <button type="button" id="enable-notif-btn" onclick="requestNotificationPermission()" 
+                    class="w-full sm:w-auto px-5 py-2.5 rounded-full theme-primary-bg text-white text-xs sm:text-sm font-bold shadow-sm transition-all shrink-0">
+                    אשר קבלת הודעות
+                </button>
+            </div>
+
+            <!-- סיכום נתונים (כמה מגיעים, כמה לא, סה"כ אנשים) -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-4">
+                <div class="bg-white rounded-[2rem] p-4 sm:p-5 text-center shadow-sm border border-slate-200/60">
+                    <span class="text-xs font-semibold text-slate-400 block mb-1">סה״כ מגיעים</span>
+                    <span id="stat-total-guests" class="text-2xl sm:text-4xl font-extrabold text-emerald-600">0</span>
+                    <span class="text-[11px] text-slate-400 block mt-1">אורחים בפועל</span>
+                </div>
+                <div class="bg-white rounded-[2rem] p-4 sm:p-5 text-center shadow-sm border border-slate-200/60">
+                    <span class="text-xs font-semibold text-slate-400 block mb-1">אישרו הגעה</span>
+                    <span id="stat-attending-count" class="text-2xl sm:text-4xl font-extrabold theme-primary-text">0</span>
+                    <span class="text-[11px] text-slate-400 block mt-1">הזמנות</span>
+                </div>
+                <div class="bg-white rounded-[2rem] p-4 sm:p-5 text-center shadow-sm border border-slate-200/60">
+                    <span class="text-xs font-semibold text-slate-400 block mb-1">לא מגיעים</span>
+                    <span id="stat-declined-count" class="text-2xl sm:text-4xl font-extrabold text-rose-500">0</span>
+                    <span class="text-[11px] text-slate-400 block mt-1">הזמנות</span>
+                </div>
+            </div>
+
+            <!-- פלטת צבעים לבחירה -->
+            <div class="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-200/60 space-y-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="palette" class="w-5 h-5 theme-primary-text"></i>
+                    <h3 class="text-base font-extrabold text-slate-800">עיצוב וצבעי האתר</h3>
+                </div>
+                <p class="text-xs text-slate-500">בחר ערכת צבעים - השינוי יישמר מיד לכל המבקרים באתר:</p>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="color-palettes-grid">
+                    <!-- כפתורי צבעים יוזרקו כאן דינמית -->
+                </div>
+            </div>
+
+            <!-- עריכת טקסטים ופרטי האירוע -->
+            <div class="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-200/60 space-y-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="edit-3" class="w-5 h-5 theme-primary-text"></i>
+                    <h3 class="text-base font-extrabold text-slate-800">עריכת טקסטים ופרטי האירוע</h3>
+                </div>
+                
+                <form id="settings-form" class="space-y-3.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">כותרת ראשית</label>
+                            <input type="text" id="edit-title" class="pill-input w-full px-4 py-2.5 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">כותרת משנה עליונה</label>
+                            <input type="text" id="edit-subtitle" class="pill-input w-full px-4 py-2.5 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">תיאור קצר</label>
+                        <input type="text" id="edit-description" class="pill-input w-full px-4 py-2.5 text-sm font-medium">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">תאריך</label>
+                            <input type="text" id="edit-date" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">שעה</label>
+                            <input type="text" id="edit-time" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">מיקום</label>
+                            <input type="text" id="edit-location" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">חלק א׳ בלו״ז</label>
+                            <input type="text" id="edit-event1-title" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">שעת חלק א׳</label>
+                            <input type="text" id="edit-event1-time" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">חלק ב׳ בלו״ז</label>
+                            <input type="text" id="edit-event2-title" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">שעת חלק ב׳</label>
+                            <input type="text" id="edit-event2-time" class="pill-input w-full px-3.5 py-2.5 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">הערה נוספת (חניה / כתובת מדויקת)</label>
+                        <input type="text" id="edit-extra-note" class="pill-input w-full px-4 py-2.5 text-sm font-medium">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">שאלת הגעה</label>
+                        <input type="text" id="edit-question" class="pill-input w-full px-4 py-2.5 text-sm font-medium">
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" id="save-settings-btn"
+                            class="w-full py-3.5 rounded-full theme-primary-bg text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>שמור שינויים באתר לתמיד</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- רשימת מאשרי הגעה -->
+            <div class="bg-white rounded-[2rem] p-5 sm:p-6 shadow-sm border border-slate-200/60 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="list-checks" class="w-5 h-5 theme-primary-text"></i>
+                        <h3 class="text-base font-extrabold text-slate-800">רשימת מוזמנים ואישורים</h3>
+                    </div>
+                    <span id="total-responses-badge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                        0 תגובות
+                    </span>
+                </div>
+
+                <!-- סינון רשימה -->
+                <div class="flex gap-2">
+                    <button type="button" onclick="filterRsvpList('all')" id="filter-all" class="px-3.5 py-1.5 rounded-full text-xs font-bold theme-primary-bg text-white transition-all">הכל</button>
+                    <button type="button" onclick="filterRsvpList('yes')" id="filter-yes" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">מגיעים</button>
+                    <button type="button" onclick="filterRsvpList('no')" id="filter-no" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">לא מגיעים</button>
+                </div>
+
+                <!-- מיכל הרשימה -->
+                <div id="rsvp-list-container" class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+                    <div class="text-center py-8 text-slate-400 text-sm">
+                        עדיין לא התקבלו אישורי הגעה...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- מודאל אישור מחיקה מותאם אישית (ללא confirm) -->
+    <div id="delete-confirm-modal" class="fixed inset-0 z-[60] hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-xs p-6 shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+                <i data-lucide="trash-2" class="w-6 h-6"></i>
+            </div>
+            <h4 class="text-lg font-bold text-slate-800">מחיקת רשומה</h4>
+            <p class="text-xs text-slate-500">האם למחוק את אישור ההגעה הזה מהרשימה?</p>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-full bg-slate-100 text-slate-700 font-bold text-xs">ביטול</button>
+                <button type="button" id="confirm-delete-btn" class="flex-1 py-2.5 rounded-full bg-rose-600 text-white font-bold text-xs">מחק</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- סקריפט ראשי וחיבור לענן בזמן אמת -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // אתחול אייקונים
+        lucide.createIcons();
+
+        // הגדרות ברירת מחדל של האתר (תואמות לתמונה ולפרטים שביקשת)
+        const DEFAULT_SETTINGS = {
+            title: "אשרו הגעתכם",
+            subtitle: "שמחים להזמינכם לחגוג איתנו",
+            description: "נשמח לראותכם בשמחת בר המצווה שלנו!",
+            date: "1.4.2027",
+            time: "9:00",
+            location: "בית כנסת אוהל ארי",
+            event1Title: "הנחת תפילין ועלייה לתורה",
+            event1Time: "09:00",
+            event2Title: "קידוש וארוחת בוקר חגיגית",
+            event2Time: "10:30",
+            extraNote: "חניה בשפע בסמוך לבית הכנסת • נשמח לראותכם בזמן!",
+            question: "האם תגיעו להנחת תפילין ולאירוע?",
+            paletteId: "classic-kraft"
+        };
+
+        // פלטות צבעים מעוצבות לבחירה באדמין פאנל
+        const COLOR_PALETTES = [
+            { id: "classic-kraft", name: "קראפט וכחול קלאסי", bg: "#d8c2a6", primary: "#26489a", hover: "#1d3778" },
+            { id: "royal-navy", name: "שמנת וכחול רויאל", bg: "#f4f1ea", primary: "#1e3a8a", hover: "#172554" },
+            { id: "emerald-gold", name: "מרווה וירוק יוקרתי", bg: "#e6ece8", primary: "#065f46", hover: "#064e3b" },
+            { id: "modern-slate", name: "אפור בהיר וגרפיט", bg: "#e2e8f0", primary: "#0f172a", hover: "#334155" },
+            { id: "warm-sand", name: "חול מדברי ובורדו", bg: "#ede0d4", primary: "#7f1d1d", hover: "#991b1b" },
+            { id: "sky-breeze", name: "תכלת עדין וטורקיז", bg: "#e0f2fe", primary: "#0369a1", hover: "#075985" }
+        ];
+
+        let currentSettings = { ...DEFAULT_SETTINGS };
+        let guestCount = 1;
+        let allRsvps = [];
+        let currentFilter = 'all';
+        let isInitialRsvpLoad = true;
+        let knownRsvpIds = new Set();
+        let pendingDeleteId = null;
+
+        // אתחול Firebase
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bar-mitzvah-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        async function initApp() {
+            renderColorPalettes();
+            applyTheme(DEFAULT_SETTINGS.paletteId);
+            checkDeviceNotificationSupport();
+
+            if (!firebaseConfig) {
+                showToast("מצב תצוגה מקומית פעיל", "info");
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // התחברות מאובטחת לפני קריאה/כתיבה
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        subscribeToSettings();
+                        subscribeToRsvps();
+                    }
+                });
+            } catch (err) {
+                console.error("Firebase init error:", err);
+                showToast("שגיאה בחיבור לשרת, נסה לרענן", "error");
+            }
+        }
+
+        // האזנה בזמן אמת להגדרות האתר (טקסטים וצבעים)
+        function subscribeToSettings() {
+            if (!db || !currentUser) return;
+            const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'site_config', 'main');
+            
+            onSnapshot(settingsRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentSettings = { ...DEFAULT_SETTINGS, ...docSnap.data() };
+                } else {
+                    // יצירת הגדרות ראשוניות בענן אם לא קיימות
+                    setDoc(settingsRef, DEFAULT_SETTINGS).catch(console.error);
+                }
+                updateSiteUI();
+            }, (error) => {
+                console.error("Settings sync error:", error);
+            });
+        }
+
+        // האזנה בזמן אמת לאישורי הגעה חדשים
+        function subscribeToRsvps() {
+            if (!db || !currentUser) return;
+            const rsvpsCol = collection(db, 'artifacts', appId, 'public', 'data', 'rsvps');
+
+            onSnapshot(rsvpsCol, (snapshot) => {
+                const fetched = [];
+                snapshot.forEach((docItem) => {
+                    fetched.push({ id: docItem.id, ...docItem.data() });
+                });
+
+                // מיון בזיכרון לפי זמן יצירה (החדש ביותר למעלה)
+                fetched.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                // בדיקה אם נכנס אישור חדש לשליחת התראה בטלפון
+                if (!isInitialRsvpLoad) {
+                    fetched.forEach((item) => {
+                        if (!knownRsvpIds.has(item.id)) {
+                            triggerNewRsvpNotification(item);
+                        }
+                    });
+                }
+
+                knownRsvpIds = new Set(fetched.map(i => i.id));
+                isInitialRsvpLoad = false;
+                allRsvps = fetched;
+
+                updateAdminStatsAndList();
+            }, (error) => {
+                console.error("RSVPs sync error:", error);
+            });
+        }
+
+        // עדכון ממשק האתר לפי ההגדרות השמורות
+        function updateSiteUI() {
+            document.getElementById('display-title').textContent = currentSettings.title;
+            document.getElementById('display-subtitle').textContent = currentSettings.subtitle;
+            document.getElementById('display-description').textContent = currentSettings.description;
+            document.getElementById('display-date').textContent = currentSettings.date;
+            document.getElementById('display-time').textContent = currentSettings.time;
+            document.getElementById('display-location').textContent = currentSettings.location;
+            document.getElementById('display-event1-title').textContent = currentSettings.event1Title;
+            document.getElementById('display-event1-time').textContent = currentSettings.event1Time;
+            document.getElementById('display-event2-title').textContent = currentSettings.event2Title;
+            document.getElementById('display-event2-time').textContent = currentSettings.event2Time;
+            document.getElementById('display-extra-note').textContent = currentSettings.extraNote;
+            document.getElementById('display-attendance-question').textContent = currentSettings.question;
+
+            // עדכון קישור ל-Waze לפי המיקום
+            const wazeEl = document.getElementById('waze-link');
+            if (wazeEl) {
+                wazeEl.href = `https://waze.com/ul?q=${encodeURIComponent(currentSettings.location)}`;
+            }
+
+            // עדכון שדות העריכה באדמין פאנל
+            document.getElementById('edit-title').value = currentSettings.title;
+            document.getElementById('edit-subtitle').value = currentSettings.subtitle;
+            document.getElementById('edit-description').value = currentSettings.description;
+            document.getElementById('edit-date').value = currentSettings.date;
+            document.getElementById('edit-time').value = currentSettings.time;
+            document.getElementById('edit-location').value = currentSettings.location;
+            document.getElementById('edit-event1-title').value = currentSettings.event1Title;
+            document.getElementById('edit-event1-time').value = currentSettings.event1Time;
+            document.getElementById('edit-event2-title').value = currentSettings.event2Title;
+            document.getElementById('edit-event2-time').value = currentSettings.event2Time;
+            document.getElementById('edit-extra-note').value = currentSettings.extraNote;
+            document.getElementById('edit-question').value = currentSettings.question;
+
+            applyTheme(currentSettings.paletteId);
+            highlightActivePalette(currentSettings.paletteId);
+        }
+
+        // הורדת קובץ אירוע ליומן (עובד באייפון, אנדרואיד ומחשב)
+        window.downloadCalendarEvent = function() {
+            const icsContent = [
+                "BEGIN:VCALENDAR",
+                "VERSION:2.0",
+                "PRODID:-//Bar Mitzvah RSVP//HE",
+                "BEGIN:VEVENT",
+                "DTSTART:20270401T090000",
+                "DTEND:20270401T120000",
+                `SUMMARY:בר מצווה - ${currentSettings.location}`,
+                `LOCATION:${currentSettings.location}`,
+                `DESCRIPTION:${currentSettings.event1Title} (${currentSettings.event1Time}) | ${currentSettings.event2Title} (${currentSettings.event2Time})`,
+                "END:VEVENT",
+                "END:VCALENDAR"
+            ].join("\r\n");
+
+            const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "bar-mitzvah.ics";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("האירוע מוכן להוספה ליומן שלך!", "success");
+        };
+
+        // שמירת טקסטים ערוכים באדמין פאנל
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('save-settings-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span>שומר שינויים...</span>`;
+
+            const updated = {
+                ...currentSettings,
+                title: document.getElementById('edit-title').value.trim() || DEFAULT_SETTINGS.title,
+                subtitle: document.getElementById('edit-subtitle').value.trim() || DEFAULT_SETTINGS.subtitle,
+                description: document.getElementById('edit-description').value.trim() || DEFAULT_SETTINGS.description,
+                date: document.getElementById('edit-date').value.trim() || DEFAULT_SETTINGS.date,
+                time: document.getElementById('edit-time').value.trim() || DEFAULT_SETTINGS.time,
+                location: document.getElementById('edit-location').value.trim() || DEFAULT_SETTINGS.location,
+                event1Title: document.getElementById('edit-event1-title').value.trim() || DEFAULT_SETTINGS.event1Title,
+                event1Time: document.getElementById('edit-event1-time').value.trim() || DEFAULT_SETTINGS.event1Time,
+                event2Title: document.getElementById('edit-event2-title').value.trim() || DEFAULT_SETTINGS.event2Title,
+                event2Time: document.getElementById('edit-event2-time').value.trim() || DEFAULT_SETTINGS.event2Time,
+                extraNote: document.getElementById('edit-extra-note').value.trim() || DEFAULT_SETTINGS.extraNote,
+                question: document.getElementById('edit-question').value.trim() || DEFAULT_SETTINGS.question,
+            };
+
+            if (db && currentUser) {
+                try {
+                    const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'site_config', 'main');
+                    await setDoc(settingsRef, updated, { merge: true });
+                    currentSettings = updated;
+                    updateSiteUI();
+                    showToast("כל השינויים נשמרו בהצלחה ומופיעים לכולם!", "success");
+                } catch (err) {
+                    console.error(err);
+                    showToast("שגיאה בשמירת ההגדרות", "error");
+                }
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            lucide.createIcons();
+        });
+
+        // ניהול כפתורי + ו - לכמות מוזמנים
+        window.updateGuestCount = function(delta) {
+            guestCount = Math.max(1, Math.min(20, guestCount + delta));
+            document.getElementById('guest-count-display').textContent = guestCount;
+        };
+
+        window.toggleGuestsCounter = function(isAttending) {
+            const box = document.getElementById('guests-counter-box');
+            if (isAttending) {
+                box.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                box.classList.add('opacity-40', 'pointer-events-none');
+            }
+        };
+
+        // שליחת טופס אישור הגעה
+        document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const attendingVal = document.querySelector('input[name="attending"]:checked').value;
+            const isAttending = attendingVal === 'yes';
+            const guests = isAttending ? guestCount : 0;
+            const note = document.getElementById('guest-note').value.trim();
+
+            if (!firstName || !lastName) {
+                showToast("נא למלא שם פרטי ושם משפחה", "error");
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>שולח אישור...</span>`;
+
+            const newRsvp = {
+                firstName,
+                lastName,
+                attending: isAttending,
+                guests,
+                note,
+                createdAt: Date.now()
+            };
+
+            try {
+                if (db && currentUser) {
+                    const rsvpsCol = collection(db, 'artifacts', appId, 'public', 'data', 'rsvps');
+                    await addDoc(rsvpsCol, newRsvp);
+                } else {
+                    // גיבוי מקומי אם אין חיבור ענן
+                    newRsvp.id = 'local-' + Date.now();
+                    allRsvps.unshift(newRsvp);
+                    updateAdminStatsAndList();
+                }
+
+                // הצגת מסך תודה
+                document.getElementById('rsvp-form').classList.add('hidden');
+                const successView = document.getElementById('success-view');
+                const successMsg = document.getElementById('success-message');
+                
+                if (isAttending) {
+                    successMsg.textContent = `תודה ${firstName}! רשמנו הגעה עבור ${guests} ${guests === 1 ? 'אורח' : 'אורחים'}. מחכים לחגוג איתכם!`;
+                } else {
+                    successMsg.textContent = `תודה שעדכנת אותנו, ${firstName}. חבל שלא תוכלו להגיע, ניפגש בשמחות!`;
+                }
+                
+                successView.classList.remove('hidden');
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Error submitting RSVP:", err);
+                showToast("אירעה שגיאה בשליחה, אנא נסה שוב", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>לשלוח אישור</span><i data-lucide="send" class="w-5 h-5 rotate-180"></i>`;
+                lucide.createIcons();
+            }
+        });
+
+        window.resetForm = function() {
+            document.getElementById('rsvp-form').reset();
+            guestCount = 1;
+            document.getElementById('guest-count-display').textContent = '1';
+            toggleGuestsCounter(true);
+            document.getElementById('success-view').classList.add('hidden');
+            document.getElementById('rsvp-form').classList.remove('hidden');
+        };
+
+        // ================= ניהול אדמין וקוד 2812 =================
+        window.openAdminModal = function() {
+            document.getElementById('admin-pin-input').value = '';
+            document.getElementById('pin-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('admin-pin-input').focus(), 100);
+        };
+
+        window.closePinModal = function() {
+            document.getElementById('pin-modal').classList.add('hidden');
+        };
+
+        document.getElementById('pin-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const enteredPin = document.getElementById('admin-pin-input').value.trim();
+            
+            if (enteredPin === '2812') {
+                closePinModal();
+                document.getElementById('admin-panel').classList.remove('hidden');
+                updateAdminStatsAndList();
+                checkDeviceNotificationSupport();
+                lucide.createIcons();
+            } else {
+                showToast("קוד שגוי, נסה שוב", "error");
+                document.getElementById('admin-pin-input').value = '';
+                document.getElementById('admin-pin-input').focus();
+            }
+        });
+
+        window.closeAdminPanel = function() {
+            document.getElementById('admin-panel').classList.add('hidden');
+        };
+
+        // ================= התראות לטלפון (מובייל / אפליקציה) =================
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        function checkDeviceNotificationSupport() {
+            const card = document.getElementById('mobile-notification-card');
+            const btn = document.getElementById('enable-notif-btn');
+            const statusText = document.getElementById('notif-status-text');
+
+            // הצגת כרטיס ההתראות בטלפון נייד (במחשב מוסתר כפי שביקשת)
+            if (!isMobileDevice()) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            card.classList.remove('hidden');
+
+            if (!("Notification" in window)) {
+                statusText.textContent = "כדי לקבל התראות באייפון: לחץ על שיתוף -> הוסף למסך הבית, ופתח משם.";
+                btn.classList.add('hidden');
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                statusText.textContent = "התראות פעילות! תקבל הודעה על כל אישור חדש.";
+                btn.textContent = "התראות פעילות ✓";
+                btn.classList.remove('theme-primary-bg');
+                btn.classList.add('bg-emerald-600');
+            } else if (Notification.permission === "denied") {
+                statusText.textContent = "התראות נחסמו בהגדרות הדפדפן/טלפון.";
+                btn.textContent = "חסום בהגדרות";
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            }
+        }
+
+        window.requestNotificationPermission = async function() {
+            if (!("Notification" in window)) {
+                showToast("באייפון יש להוסיף קודם למסך הבית דרך כפתור השיתוף", "info");
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                checkDeviceNotificationSupport();
+                if (permission === "granted") {
+                    showToast("מעולה! מעכשיו תקבל התראה על כל אישור הגעה", "success");
+                    new Notification("התראות בר מצווה הופעלו! 🎉", {
+                        body: "תקבל עדכון מיידי בכל פעם שאורח יאשר הגעה."
+                    });
+                }
+            } catch (err) {
+                console.error("Notification permission error:", err);
+            }
+        };
+
+        function triggerNewRsvpNotification(item) {
+            const fullName = `${item.firstName} ${item.lastName}`;
+            const statusMsg = item.attending 
+                ? `אישר/ה הגעה (${item.guests} אורחים)` 
+                : `עדכנ/ה שלא יוכלו להגיע`;
+
+            // הצגת הודעה בתוך המסך
+            showToast(`אישור חדש: ${fullName} - ${statusMsg}`, "success");
+
+            // שליחת התראת מערכת בטלפון אם אושרה הרשאה
+            if (isMobileDevice() && "Notification" in window && Notification.permission === "granted") {
+                try {
+                    new Notification("אישור הגעה חדש לבר מצווה! 🎊", {
+                        body: `${fullName} - ${statusMsg}`,
+                        tag: item.id
+                    });
+                } catch (e) {
+                    console.error("System notification error:", e);
+                }
+            }
+        }
+
+        // ================= חישוב סטטיסטיקות ורינדור רשימת מוזמנים =================
+        function updateAdminStatsAndList() {
+            let totalGuests = 0;
+            let attendingSubmissions = 0;
+            let declinedSubmissions = 0;
+
+            allRsvps.forEach(item => {
+                if (item.attending) {
+                    totalGuests += Number(item.guests || 1);
+                    attendingSubmissions++;
+                } else {
+                    declinedSubmissions++;
+                }
+            });
+
+            document.getElementById('stat-total-guests').textContent = totalGuests;
+            document.getElementById('stat-attending-count').textContent = attendingSubmissions;
+            document.getElementById('stat-declined-count').textContent = declinedSubmissions;
+            document.getElementById('total-responses-badge').textContent = `${allRsvps.length} תגובות`;
+
+            renderRsvpList();
+        }
+
+        window.filterRsvpList = function(filter) {
+            currentFilter = filter;
+            ['all', 'yes', 'no'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = "px-3.5 py-1.5 rounded-full text-xs font-bold theme-primary-bg text-white transition-all";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all";
+                }
+            });
+            renderRsvpList();
+        };
+
+        function renderRsvpList() {
+            const container = document.getElementById('rsvp-list-container');
+            
+            const filtered = allRsvps.filter(item => {
+                if (currentFilter === 'yes') return item.attending;
+                if (currentFilter === 'no') return !item.attending;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 text-sm">
+                        אין רשומות להצגה בקטגוריה זו
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const dateStr = item.createdAt 
+                    ? new Date(item.createdAt).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+                    : '';
+
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-slate-800 text-sm sm:text-base">${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}</span>
+                                ${item.attending 
+                                    ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">מגיעים: ${item.guests}</span>`
+                                    : `<span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">לא מגיעים</span>`
+                                }
+                            </div>
+                            ${item.note ? `<p class="text-xs text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-100 inline-block">"${escapeHtml(item.note)}"</p>` : ''}
+                            <span class="block text-[10px] text-slate-400">${dateStr}</span>
+                        </div>
+                        <button type="button" onclick="promptDeleteRsvp('${item.id}')" aria-label="מחק"
+                            class="p-2 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all shrink-0">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // מחיקת רשומה
+        window.promptDeleteRsvp = function(id) {
+            pendingDeleteId = id;
+            document.getElementById('delete-confirm-modal').classList.remove('hidden');
+        };
+
+        window.closeDeleteModal = function() {
+            pendingDeleteId = null;
+            document.getElementById('delete-confirm-modal').classList.add('hidden');
+        };
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            if (!pendingDeleteId) return;
+            const idToDelete = pendingDeleteId;
+            closeDeleteModal();
+
+            if (db && currentUser) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rsvps', idToDelete));
+                    showToast("הרשומה נמחקה", "info");
+                } catch (e) {
+                    console.error(e);
+                    showToast("שגיאה במחיקה", "error");
+                }
+            }
+        });
+
+        // מניעת הזרקת קוד בטקסט חופשי
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // מערכת הודעות צפות (Toast)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-rose-600 text-white',
+                info: 'bg-slate-800 text-white'
+            };
+
+            toast.className = `${colors[type] || colors.info} px-5 py-3 rounded-full shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 transform translate-y-0 opacity-100`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // הפעלת האפליקציה בטעינה
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
